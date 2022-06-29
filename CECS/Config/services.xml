@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<objects>
+	<object type="BLL.AdminService, BLL" singleton="false" name="AdminService" >
+	</object>
+	<object type="BLL.ArticleService, BLL" singleton="false" name="ArticleService" >
+	</object>
+	<object type="BLL.BlogUserService, BLL" singleton="false" name="BlogUserService" >
+	</object>
+	<object type="BLL.BuildingService, BLL" singleton="false" name="BuildingService" >
+	</object>
+	<object type="BLL.dtpropertiesService, BLL" singleton="false" name="dtpropertiesService" >
+	</object>
+	<object type="BLL.HrefService, BLL" singleton="false" name="HrefService" >
+	</object>
+	<object type="BLL.MessageService, BLL" singleton="false" name="MessageService" >
+	</object>
+	<object type="BLL.ProjectService, BLL" singleton="false" name="ProjectService" >
+	</object>
+	<object type="BLL.QuantityService, BLL" singleton="false" name="QuantityService" >
+	</object>
+	<object type="BLL.ReplyService, BLL" singleton="false" name="ReplyService" >
+	</object>
+</objects>

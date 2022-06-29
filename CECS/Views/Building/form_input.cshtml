@@ -1,0 +1,232 @@
+﻿<style>
+    .table_edit {
+        border-collapse: separate;
+        border-spacing: 8px 6px;
+    }
+
+    .tdal {
+        text-align: right;
+    }
+
+    .easyui-textbox {
+        width: 150px;
+    }
+
+    .easyui-combobox {
+        width: 150px;
+    }
+
+    .easyui-searchbox {
+        width: 150px;
+    }
+</style>
+<script>
+    function loadSelectTable(pars) {
+        $('#tab_select').datagrid({
+            url: '/Project/GetProjectList',
+            title: '',//-----------------
+            iconCls: '', //标题左边的图标
+            width: 1500,
+            height: 750,
+            idField: 'ProjectID',//主键列的列名
+            sortName: 'ProjectID', //排序字段
+            loadMsg: '数据正在加载...',
+            fitColumns: true, //列是否自适应
+            nowrap: false,//是否不自动换行
+            striped: true,//是否奇偶行使用不同背景色
+            singleSelect: true,//是否单行选择-----------------
+            rownumbers: true, //是否显示行号
+            pagination: true,//是否有分页
+            pageSize: 20,//每页最大记录条数
+            pageList: [20, 40, 60],//每页记录条数的列表，pageSize必须在此列表中
+            pageNumber: 1,//当前页，默认的
+            sortOrder: 'desc', //排序类型(本页数据)
+            remoteSort: true, //是否从服务器给数据排序
+            queryParams: pars,//往后台传递参数
+            frozenColumns: [[//冻结的列，不会随横向滚动轴移动
+                { field: 'cbx', checkbox: true },
+            ]],
+            columns: [[
+                { title: '项目ID', field: 'ProjectID', width: 60 },
+                { title: '项目名称', field: 'ProjectName', width: 200 },
+                { title: '项目类型', field: 'ProjectType', width: 80 },
+                { title: '业主名称', field: 'OwnerName', width: 150 },
+                { title: '业主类型', field: 'OwnerType', width: 80 },
+                { title: '建筑面积', field: 'ArchitectureArea', width: 80 },
+                { title: '占地面积', field: 'FloorArea', width: 80 },
+                { title: '报建日期', field: 'ApplicationDate', width: 90, formatter: ChangeDateFormat },
+                { title: '竣工日期', field: 'CompletionDate', width: 90, formatter: ChangeDateFormat },
+                { title: '工程地址', field: 'ProjectAddress', width: 250 },
+                { title: '投资金额', field: 'InvestmentAmount', width: 100 }
+            ]],
+            toolbar: [{
+                id: 'btnSearch',
+                text: '查找',
+                iconCls: 'icon-search',
+                handler: function () {
+                    //searchProjectInfo();
+                }
+            }],
+        });
+    }
+    //弹出选择列表
+    function myselect(value, name) {
+        //alert($("#" + formID + " #ProjectID").textbox('getValue'));//TEST
+        loadSelectTable();
+        $("#select").dialog("open");
+        $("#select-buttons a:first").attr("onclick", "SelectData(getID()); return false;");//弹出框‘确定’按钮点击事件
+    }
+
+    //弹出选择框：选择链接 事件
+    function SelectData(uid) {
+        $("#" + formID + " #ProjectID").textbox('setValue', uid);
+        //alert($("#" + formID + " ProjectID").textbox('getValue'));
+        //alert(document.getElementById("ProjectID").value);
+        //$("#ProjectID").searchbox({ value: uid });
+        //alert($("#ProjectID").searchbox('options').value);
+        $("#select").dialog('close');
+    }
+    //弹出选择框：获取对应行中主键ID的值
+    function getID() {
+        var rows = $('#tab_select').datagrid('getSelections')
+        return rows[0].ProjectID;
+    }
+</script>
+@* 注意：本页面可能被同一页面多次加载，引发id冲突，使用id前应做好处理 *@
+@* 表单内容表格 *@
+<form id="form_list" name="form_list" method="post">
+    <table class="table_edit">
+        @* 修改数据提交时，Ajax.BeginForm()对表单内容进行序列化后，对应的Model对象无ID值，保存会出错。
+            故此处表单添加主键ID，用display:none隐藏 *@
+        <tr style="display:none;">
+            <td class="tdal">建筑ID：</td>
+            <td class="tdar">
+                <input id="BuildingID" name="BuildingID" type="text" class="easyui-textbox" required="true" />
+            </td>
+        </tr>
+        <tr>
+            <td class="tdal">建筑名称：</td>
+            <td class="tdar">
+                <input id="BuildingName" name="BuildingName" type="text" class="easyui-textbox" required="true" />
+            </td>
+            <td class="tdal">建筑类型：</td>
+            <td class="tdar">
+                <select id="BuildingType" class="easyui-combobox" name="BuildingType" width="100%" required="true">
+                    <option value="商业">商业</option>
+                    <option value="住宅" selected="selected">住宅</option>
+                    <option value="办公">办公</option>
+                    <option value="地下室">地下室</option>
+                    <option value="学校">学校</option>
+                    <option value="其他">其他</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="tdal">结构体系：</td>
+            <td class="tdar">
+                <input id="StructureSystem" name="StructureSystem" type="text" class="easyui-textbox" required="true" />
+            </td>
+            <td class="tdal">建筑高度：</td>
+            <td class="tdar">
+                <input id="BuildingHeight" name="BuildingHeight" type="text" class="easyui-textbox" required="true" />
+            </td>
+        </tr>
+        <tr>
+            <td class="tdal">层数：</td>
+            <td class="tdar">
+                <input id="Floors" name="Floors" type="text" class="easyui-textbox" />
+            </td>
+            <td class="tdal">层高：</td>
+            <td class="tdar">
+                <input id="FloorHeight" name="FloorHeight" type="text" class="easyui-textbox" />
+            </td>
+        </tr>
+        <tr>
+            <td class="tdal">建筑面积：</td>
+            <td class="tdar">
+                <input id="ArchitectureArea" name="ArchitectureArea" type="text" class="easyui-textbox" />
+            </td>
+            <td class="tdal">结构面积：</td>
+            <td class="tdar">
+                <input id="StructureArea" name="StructureArea" type="text" class="easyui-textbox" />
+            </td>
+        </tr>
+        <tr>
+            <td class="tdal">设防烈度：</td>
+            <td class="tdar">
+                <select id="SeismicIntensity" class="easyui-combobox" name="SeismicIntensity" required="true">
+                    <option value="6（0.05g）">6（0.05g）</option>
+                    <option value="7（0.10g）" selected="selected">7（0.10g）</option>
+                    <option value="7（0.15g）">7（0.15g）</option>
+                    <option value="8（0.20g）">8（0.20g）</option>
+                    <option value="8（0.30g）">8（0.30g）</option>
+                    <option value="9（0.40g）">9（0.40g）</option>
+                </select>
+            </td>
+            <td class="tdal">场地类别：</td>
+            <td class="tdar">
+                <select id="SiteClassification" class="easyui-combobox" name="SiteClassification">
+                    <option value="Ⅰ0">Ⅰ0</option>
+                    <option value="Ⅰ1">Ⅰ1</option>
+                    <option value="Ⅱ">Ⅱ</option>
+                    <option value="Ⅲ" selected="selected">Ⅲ</option>
+                    <option value="Ⅳ">Ⅳ</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="tdal">抗震等级：</td>
+            <td class="tdar">
+                <select id="SeismicGrade" class="easyui-combobox" name="SeismicGrade">
+                    <option value="特一级">特一级</option>
+                    <option value="一级">一级</option>
+                    <option value="二级">二级</option>
+                    <option value="三级">三级</option>
+                    <option value="四级" selected="selected">四级</option>
+                    <option value="非抗震">非抗震</option>
+                </select>
+            </td>
+            <td class="tdal">基本风压：</td>
+            <td class="tdar">
+                <input id="ReferenceWindPressure" name="ReferenceWindPressure" type="text" class="easyui-textbox" />
+            </td>
+        </tr>
+        <tr>
+            <td class="tdal">规则性：</td>
+            <td class="tdar">
+                <select id="Regularity" class="easyui-combobox" name="Regularity">
+                    <option value="很好">很好</option>
+                    <option value="较好">较好</option>
+                    <option value="一般" selected="selected">一般</option>
+                    <option value="较差">较差</option>
+                    <option value="很差">很差</option>
+                </select>
+            </td>
+            <td class="tdal">柱网大小：</td>
+            <td class="tdar">
+                <select id="ColumnSpan" class="easyui-combobox" name="ColumnSpan">
+                    <option value="大">大</option>
+                    <option value="中" selected="selected">中</option>
+                    <option value="小">小</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="tdal">转换层数：</td>
+            <td class="tdar">
+                <input id="TransferedFloors" name="TransferedFloors" type="text" class="easyui-textbox" />
+            </td>
+            <td class="tdal">项目ID：</td>
+            <td class="tdar" colspan="3">
+                <input id="ProjectID" name="ProjectID" type="text" class="easyui-searchbox"
+                       data-options="searcher:myselect,prompt:'请输入项目ID'" />
+            </td>
+        </tr>
+        <tr>
+            <td class="tdal">设计人ID：</td>
+            <td class="tdar">
+                <input id="DesignerID" name="DesignerID" type="text" class="easyui-textbox" />
+            </td>
+        </tr>
+    </table>
+</form>

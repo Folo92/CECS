@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - 建筑工程咨询信息平台</title>
+    <style>
+        .bg-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            min-width: 1000px;
+            z-index: -10;
+            zoom: 1;
+            background-color: #fff;
+            background-image: url(/Content/images/bg-data.jpg);
+            background-repeat: no-repeat;
+            background-size: cover;
+            -webkit-background-size: cover;
+            -o-background-size: cover;
+            background-position: center 0;
+        }
+    </style>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/easyui")
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top" style=" background-color: #222; border-color: #080808;">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("建筑工程咨询信息平台", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li style=" font-size: 16px;">@Html.ActionLink("主页", "Index", "Home")</li>
+                    <li style=" font-size: 16px;">@Html.ActionLink("工程信息系统", "InfoSystem", "System")</li>
+                    <li style=" font-size: 16px;">@Html.ActionLink("关于", "About", "Home")</li>
+                    <li style=" font-size: 16px;">@Html.ActionLink("联系方式", "Contact", "Home")</li>
+                    <li style=" font-size: 16px; user-select:none;">&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</li>
+                    @{
+                        string strUserName = "请登录";
+                        if (Session["username"] != null)
+                        {
+                            strUserName = Session["username"].ToString();
+                        }
+                        <li style=" font-size: 14px;">@Html.ActionLink(strUserName, "UserInfo", "Home")</li>
+                        if (strUserName != "请登录")
+                        {
+                            <li style=" font-size: 14px;">@Html.ActionLink("退出登录", "Logout", "Login")</li>
+                        }
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @*<div class="bg-image"></div>*@
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - 建筑工程咨询信息平台</p>
+        </footer>
+    </div>
+
+    @* 子页面如果依赖母版页尾部引入的脚本，要注意脚本相互之间的依赖关系和先后顺序 *@
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

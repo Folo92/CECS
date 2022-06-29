@@ -1,0 +1,156 @@
+﻿@{
+    ViewBag.Title = "InfoSystem";
+    //Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>工程信息系统</title>
+
+    @Styles.Render("~/Content/easyui")
+    @Styles.Render("~/Content/easyui_icon")
+    @Styles.Render("~/Content/custom")
+    @* jQuery和easyUI在母版页中已引入 *@
+    @Scripts.Render("~/bundles/custom")
+
+    <script type="text/javascript">
+        var _menus = {
+            "menus": [
+                {
+                    "menuid": "1", "icon": "icon-sys", "menuname": "工程信息管理",
+                    "menus": [
+                        { "menuid": "11", "menuname": "项目信息", "icon": "icon-project", "url": "/Project/Index" },
+                        { "menuid": "12", "menuname": "建筑信息", "icon": "icon-building", "url": "/Building/Index" },
+                        { "menuid": "13", "menuname": "建筑工程量", "icon": "icon-quantity", "url": "/Quantity/Index" },
+                        { "menuid": "14", "menuname": "工程量查询", "icon": "icon-query", "url": "/QuantityQuery/Index" }]
+                },
+                {
+                    "menuid": "2", "icon": "icon-sys", "menuname": "后台管理系统",
+                    "menus": [
+                        { "menuid": "21", "menuname": "链接管理", "icon": "icon-nav", "url": "/HrefInfo/Index" },
+                        { "menuid": "22", "menuname": "管理员管理", "icon": "icon-users", "url": "/AdminInfo/Index" },
+                        { "menuid": "23", "menuname": "用户管理", "icon": "icon-role", "url": "/BlogUserManage/Index" },
+                        { "menuid": "24", "menuname": "文章管理", "icon": "icon-article", "url": "/ArticleManage/Index" },
+                        { "menuid": "25", "menuname": "回复管理", "icon": "icon-reply", "url": "/ReplyList/Index" }]
+                }
+            ]
+        };
+        //初始化左侧
+        function InitLeftMenu1() {
+
+            $(".easyui-accordion1").empty();    //清空导航菜单（折叠菜单）
+            var menulist = "";  //定义菜单列表
+
+            //一级菜单
+            $.each(_menus.menus, function (i, n) {
+                menulist += '<div title="' + n.menuname + '"  icon="' + n.icon + '" style="overflow:auto;">';
+                menulist += '<ul>';
+                //二级菜单
+                $.each(n.menus, function (j, o) {
+                    menulist += '<li><div><a ref="' + o.menuid + '" href="#" rel="' + o.url + '" ><span class="icon '
+                        + o.icon + '" >&nbsp;</span><span class="span-nav">' + o.menuname + '</span></a></div></li> ';
+                })
+                menulist += '</ul></div>';
+            })
+
+            $(".easyui-accordion1").append(menulist);   //获取菜单列表的数据
+
+            //点击导航菜单
+            $('.easyui-accordion1 li a').click(function () {
+                var tabTitle = $(this).children('.span-nav').text();
+
+                var url = $(this).attr("rel");
+                var menuid = $(this).attr("ref");
+                var icon = getIcon(menuid, icon);//var icon = getIcon(menuid);
+
+                addTab(tabTitle, url, icon);
+
+                $('.easyui-accordion1 li div').removeClass("selected");
+                $(this).parent().addClass("selected");
+
+            }).hover(function () {
+                $(this).parent().addClass("hover"); //添加鼠标悬停效果
+            }, function () {
+                $(this).parent().removeClass("hover"); //取消鼠标悬停效果
+            });
+
+            //导航菜单绑定初始化
+            $(".easyui-accordion1").accordion();
+        }
+
+        //页面加载完毕后执行（脚本入口）
+        $(function () {
+            InitLeftMenu1();
+
+        });
+
+    </script>
+</head>
+
+<body>
+    <div id="layout-sys" class="easyui-layout" style="width: 1920px; height: 1080px; position: absolute; left: 300px;">
+        <!--  页眉 -->
+        <div region="north" split="true" border="false" 
+             style="overflow: hidden; height: 36px; background: url(/Content/images/layout-browser-hd-bg.gif) #7f99be repeat-x center 50%; 
+                line-height: 28px; color: #fff; font-family: Verdana, 微软雅黑,黑体">
+            <span style="float: right; padding-right: 20px;" class="head">
+                <img src="~/Content/images/user01.png" width="20" height="20" align="middle" />
+                <a href="javascript:void()" style="cursor: pointer; text-decoration: none;color:orangered;">@Session["username"]</a>&nbsp;&nbsp;
+                <a href="javascript:void()" style="cursor: pointer; text-decoration: none;" id="editpass">修改密码</a>&nbsp;&nbsp;
+                <a href="javascript:void()" style="cursor: pointer; text-decoration: none;" id="loginOut">安全退出</a>
+            </span>
+            <span style="padding-left: 10px; font-size: 16px;">
+                <img src="~/Content/images/blocks.gif" width="20" height="20" align="middle" /> 工程信息系统
+            </span>
+        </div>
+        <!--  导航菜单 -->
+        <div region="west" split="true" title="导航菜单" style="width: 180px;" id="west">
+            <div class="easyui-accordion1" fit="true" border="false">
+                <!--  导航内容 -->
+            </div>
+        </div>
+        <!--  主面板 -->
+        <div id="mainPanel" region="center" style="background: #eee; overflow-y: hidden;">
+            <div id="tabs" class="easyui-tabs" fit="true" border="false">
+                <div title="欢迎使用" style="padding: 20px; overflow: hidden;" id="home">
+                    <h1>欢迎使用工程信息系统!</h1>
+                </div>
+            </div>
+        </div>
+        <!--  页脚 -->
+        <div region="south" split="true" style="height: 30px; background: #D2E0F2;">
+            <div class="footer">
+                @DateTime.Now
+            </div>
+        </div>
+    </div>
+    <!--  标签右键弹出菜单 -->
+    <div id="mm" class="easyui-menu" style="width: 150px;">
+        <div id="mm-tabclose">
+            关闭
+        </div>
+        <div id="mm-tabcloseall">
+            全部关闭
+        </div>
+        <div id="mm-tabcloseother">
+            其他全部关闭
+        </div>
+        <div class="menu-sep">
+        </div>
+        <div id="mm-tabcloseright">
+            右侧全部关闭
+        </div>
+        <div id="mm-tabcloseleft">
+            左侧全部关闭
+        </div>
+        <div class="menu-sep">
+        </div>
+        <div id="mm-exit">
+            退出
+        </div>
+    </div>
+</body>
+</html>
+

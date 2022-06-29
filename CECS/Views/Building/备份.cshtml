@@ -1,0 +1,341 @@
+﻿@{
+    ViewBag.Title = "Building";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>建筑单体信息管理</title>
+    @*@Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/easyui")
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/ajax")
+    @Scripts.Render("~/bundles/custom")
+    @Styles.Render("~/Content/easyui")
+    @Styles.Render("~/Content/custom")*@
+    <link href="~/Content/easyui/themes/default/easyui.css" rel="stylesheet" />
+    <link href="~/Content/easyui/themes/icon.css" rel="stylesheet" />
+    <link href="~/Content/default.css?v=5" rel="stylesheet" />
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/jquery.easyui.min.js"></script>
+    <script src="~/Scripts/easyui-lang-zh_CN.js"></script>
+    @*必须引用jquery.unobtrusive-ajax.min.js，否则用Ajax.BeginForm返回数据时找不到本页面，自动跳转到操作方法(Action)名对应的页面（可能为空）*@
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/wikmenu.js"></script>
+    @*引入脚本时路径后面加个任意参数（如v=20220428），当脚本有改动时修改参数值，可以更新该脚本的浏览器缓存*@
+    <script src="~/Scripts/wy.kit.js?v=20220428"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("#addDiv").css("display", "none");
+            $("#editDiv").css("display", "none");
+            //将下拉框宽度设为自动
+            $('.easyui-combobox').combobox({
+                width: "auto"
+            });
+            //给搜索按钮加一个单击事件
+            $("#btnSearch").click(function () {
+                //获取用户输入的搜索数据.
+                var pars = {
+                    name: $("#txtSearchName").val(),
+                    type: $("#txtSearchType").val()
+                };
+                //将获取的搜索的数据发送到服务端。
+                loadData(pars);
+            });
+            loadData();
+        });
+
+        function loadData(pars) {
+            $('#tt').datagrid({
+                url: '/Building/GetBuildingList',
+                title: '建筑单体信息表',
+                iconCls: '', //标题左边的图标
+                width: 1500,
+                height: 800,
+                idField: 'BuildingID',//主键列的列名
+                sortName: 'BuildingID', //排序字段
+                loadMsg: '数据正在加载...',
+                fitColumns: true, //列是否自适应
+                nowrap: false,//是否不自动换行
+                striped: true,//是否奇偶行使用不同背景色
+                singleSelect: false,//是否单行选择
+                rownumbers: true, //是否显示行号
+                pagination: true,//是否有分页
+                pageSize: 20,//每页最大记录条数
+                pageList: [20, 40, 60],//每页记录条数的列表，pageSize必须在此列表中
+                pageNumber: 1,//当前页，默认的
+                sortOrder: 'desc', //排序类型(本页数据)
+                remoteSort: true, //是否从服务器给数据排序
+                queryParams: pars,//往后台传递参数
+                frozenColumns: [[//冻结的列，不会随横向滚动轴移动
+                    { field: 'cbx', checkbox: true },
+                ]],
+                columns: [[
+                    { title: '建筑ID', field: 'BuildingID', width: 60 },
+                    { title: '建筑名称', field: 'BuildingName', width: 200 },
+                    { title: '建筑类型', field: 'BuildingType', width: 80 },
+                    { title: '结构体系', field: 'StructureSystem', width: 100 },
+                    { title: '建筑高度', field: 'BuildingHeight', width: 60 },
+                    { title: '层数', field: 'Floors', width: 50 },
+                    { title: '层高', field: 'FloorHeight', width: 50 },
+                    { title: '建筑面积', field: 'ArchitectureArea', width: 80 },
+                    { title: '结构面积', field: 'StructureArea', width: 80 },
+                    { title: '设防烈度', field: 'SeismicIntensity', width: 80 },
+                    { title: '场地类别', field: 'SiteClassification', width: 60 },
+                    { title: '抗震等级', field: 'SeismicGrade', width: 60 },
+                    { title: '基本风压', field: 'ReferenceWindPressure', width: 60 },
+                    { title: '规则性', field: 'Regularity', width: 60 },
+                    { title: '柱网大小', field: 'ColumnSpan', width: 60 },
+                    { title: '项目ID', field: 'ProjectID', width: 60 },
+                    { title: '设计人ID', field: 'DesignerID', width: 60 },
+                    {
+                        title: '操作', field: 'BuildingID_GET', width: 80, formatter: function (value, row, index) {
+                            var cmd = '';
+                            cmd += '<a style="color:red" href="javascript:;" onclick="EditData(' + 'getID(' + index + ')' + ');$(this).parent().click();return false;">修改</a>';
+                            cmd += '&nbsp;&nbsp;';
+                            cmd += '<a style="color:red" href="javascript:;" onclick="CopyData(' + 'getID(' + index + ')' + ');$(this).parent().click();return false;">复制</a>';
+                            return cmd;
+                        }
+                    }
+                ]],
+                toolbar: [{
+                    id: 'btnDelete',
+                    text: '删除',
+                    iconCls: 'icon-remove',
+                    handler: function () {
+                        deleteInfo();
+                    }
+                }, {
+                    id: 'btnAdd',
+                    text: '添加',
+                    iconCls: 'icon-add',
+                    handler: function () {
+                        addInfo();
+                    }
+                }, {
+                    id: 'btnEidt',
+                    text: '编辑',
+                    iconCls: 'icon-edit',
+                    handler: function () {
+                        showEditInfo();
+                    }
+                }],
+            });
+        }
+
+        //删除数据
+        function deleteInfo() {
+            var rows = $('#tt').datagrid('getSelections');//获取所选择的行
+            if (!rows || rows.length == 0) {
+                $.messager.alert("提醒", "请选择要删除的记录!", "error");
+                return;
+            }
+            $.messager.confirm("提示", "确定要删除数据吗", function (r) {
+                if (r) {
+                    //获取要删除的记录的ID值。
+                    var rowsLength = rows.length;
+                    var strId = "";
+                    for (var i = 0; i < rowsLength; i++) {
+                        strId = strId + rows[i].BuildingID + ",";//ID的字段名要对应
+                    }
+                    //去掉最后一个逗号。
+                    strId = strId.substr(0, strId.length - 1);
+                    //将获取的要删除的记录的ID值发送到服务端。
+                    $.post("/Building/DeleteBuilding", { "strId": strId }, function (data) {
+                        if (data == "ok") {
+                            $('#tt').datagrid('reload');//加载表格不会跳到第一页。
+                            //清除上次操作的历史的记录。
+                            $('#tt').datagrid('clearSelections')
+                        } else {
+                            $.messager.alert("提醒", "删除记录失败!", "error");
+                        }
+                    });
+                }
+            });
+        }
+
+        //添加数据。$.messager.confirm()是异步实现的，所以要封装toAdd函数，放到回调函数里面去。
+        function addInfo() {
+            //判断一下用户是否选择了数据
+            var rows = $('#tt').datagrid('getSelections');//获取所选择的行
+            if (rows.length == 1) {
+                $.messager.confirm('添加数据', '是否以选中的一行数据为模板？', function (r) {
+                    if (r) {//将选中的数据查询出来，显示到文本框中。
+                        var id = rows[0].BuildingID;//ID的字段名要对应
+                        $.post("/Building/ShowEditInfo", { "id": id }, function (data) {
+                            $("#addForm").form('load', data);
+                        });
+                    }
+                    toAdd();//弹出添加数据对话框
+                });
+            } else {
+                $("#addForm").form('clear');//清空表单数据
+                toAdd();//弹出添加数据对话框
+            }
+        }
+        //添加数据
+        function toAdd() {
+            $("#addDiv").css("display", "block");
+            $('#addDiv').dialog({
+                title: '添加数据',
+                width: 580,
+                height: 450,
+                collapsible: true,
+                maximizable: true,
+                resizable: true,
+                modal: true,
+                buttons: [{
+                    text: 'Ok',
+                    iconCls: 'icon-ok',
+                    handler: function () {
+                        validateInfo($("#addForm"));//表单校验
+                        $("#addForm").submit();//提交表单
+                    }
+                }, {
+                    text: 'Cancel',
+                    handler: function () {
+                        $('#addDiv').dialog('close');
+                    }
+                }]
+            });
+        }
+        //完成添加后调用该方法
+        function afterAdd(data) {
+            if (data == "ok") {
+                $('#addDiv').dialog('close');
+                $('#tt').datagrid('reload');//加载表格不会跳到第一页。
+                $("#addForm input").val("");
+                //$("#addForm select").val("");
+            }
+        }
+        //表单校验
+        function validateInfo(control) {
+            control.validate({//表示对哪个form表单进行校验，获取form标签的id属性的值
+                rules: {//表示验证规则
+                    BuildingName: "required",//表示对哪个表单元素进行校验，要写具体的表单元素的name属性的值
+                    BuildingType: {
+                        required: true
+                    },
+                    StructureSystem: {
+                        required: true,
+                        //minlength: 5
+                    },
+                    BuildingHeight: {
+                        required: true
+                    },
+                    SeismicIntensity: {
+                        required: true
+                    }
+                },
+                messages: {
+                    BuildingName: "请输入建筑名称",
+                    BuildingType: {
+                        required: "请输入建筑类型"
+                    },
+                    StructureSystem: {
+                        required: "请输入结构体系",
+                        //minlength: jQuery.format("密码不能小于{0}个字 符")
+                    },
+                    BuildingHeight: {
+                        required: "请输入建筑高度"
+                    },
+                    SeismicIntensity: {
+                        required: "请输入设防烈度"
+                    }
+                }
+            });
+        }
+
+        //展示一下要修改的数据.
+        function showEditInfo() {
+            //判断一下用户是否选择了要修改的数据
+            var rows = $('#tt').datagrid('getSelections');//获取所选择的行
+            if (rows.length < 1) {
+                $.messager.alert("提示", "请选择一行要修改的数据", "error");
+                return;
+            }
+            else if (rows.length > 1) {
+                $.messager.alert("提示", "只能选择一行要修改的数据。当前选中了 " + rows.length + " 行", "error");
+                return;
+            }
+            //将要修改的数据查询出来，显示到文本框中。
+            var id = rows[0].BuildingID;//ID的字段名要对应
+            $.post("/Building/ShowEditInfo", { "id": id }, function (data) {
+                $("#editForm").form('load', data);
+                //$.messager.show({ showType: 'slide', showSpeed: '600', msg: JSON.stringify(data), title: '提示' });
+                //alert(JSON.stringify(data));
+            });
+            $("#editDiv").css("display", "block");
+            $('#editDiv').dialog({
+                title: '编辑用户数据',
+                width: 580,
+                height: 450,
+                collapsible: true,
+                maximizable: true,
+                resizable: true,
+                modal: true,
+                buttons: [{
+                    text: 'Ok',
+                    iconCls: 'icon-ok',
+                    handler: function () {
+                        validateInfo($("#editForm"));//表单校验
+                        $("#editForm").submit();//提交表单
+                    }
+                }, {
+                    text: 'Cancel',
+                    handler: function () {
+                        $('#editDiv').dialog('close');
+                    }
+                }]
+            });
+        }
+        //更新以后调用该方法.
+        function afterEdit(data) {
+            if (data == "ok") {
+                $('#editDiv').dialog('close');
+                $('#tt').datagrid('reload');//加载表格不会跳到第一页。
+            } else {
+                $.messager.alert("提示", "修改的数据失败", "error");
+            }
+        }
+        //将序列化成json格式后日期(毫秒数)转成日期格式
+        function ChangeDateFormat(cellval) {
+            var date = new Date(parseInt(cellval.replace("/Date(", "").replace(")/", ""), 10));
+            var month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
+            var currentDate = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+            return date.getFullYear() + "-" + month + "-" + currentDate;
+        }
+    </script>
+</head>
+
+<body>
+    <div>
+        <div style="font-size: 14px; line-height: 2em;">
+            名称：<input type="text" id="txtSearchName" />&nbsp;&nbsp;类型：<input type="text" id="txtSearchType" />
+            <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width: 80px; height: 25px;" id="btnSearch">Search</a>
+            <p></p>
+        </div>
+        <table id="tt" style="width:auto;" title="标题，可以使用代码进行初始化，也可以使用这种属性的方式" iconcls="icon-edit">
+        </table>
+    </div>
+    <!--------------添加数据---------------------->
+    <div id="addDiv" style="display: none;">
+        @*必须引用jquery.unobtrusive-ajax.min.js，否则用Ajax.BeginForm返回数据时找不到本页面，自动跳转到操作方法(Action)名对应的页面（可能为空）*@
+        @using (Ajax.BeginForm("AddBuilding", "Building", new { }, new AjaxOptions() { HttpMethod = "post", OnSuccess = "afterAdd" }, new { id = "addForm" }))
+        {
+            @Html.Partial("table_edit")
+        }
+    </div>
+    <!--------------修改数据---------------------->
+    <div id="editDiv" style="display: none;">
+        @using (Ajax.BeginForm("EditBuilding", "Building", new { }, new AjaxOptions() { HttpMethod = "post", OnSuccess = "afterEdit" }, new { id = "editForm" }))
+        {
+            @Html.Partial("table_edit")
+        }
+    </div>
+</body>
+</html>
+

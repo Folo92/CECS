@@ -1,0 +1,127 @@
+﻿<style>
+    .table_edit {
+        border-collapse: separate;
+        border-spacing: 8px 6px;
+    }
+
+    .tdal {
+        text-align: right;
+    }
+
+    .easyui-textbox {
+        width: 160px;
+    }
+
+    .easyui-combobox {
+        width: 160px;
+    }
+
+    .easyui-searchbox {
+        width: 160px;
+    }
+
+    .easyui-datebox {
+        width: 160px;
+    }
+</style>
+<script>
+
+</script>
+
+@* 注意：本页面可能被同一页面多次加载，引发id冲突，使用id前应做好处理 *@
+@* 表单内容表格 *@
+<form id="form_list" name="form_list" method="post">
+    <table class="table_edit">
+        @* 修改数据提交时，Ajax.BeginForm()对表单内容进行序列化后，对应的Model对象无ID值，保存会出错。
+        故此处表单添加主键ID，用display:none隐藏 *@
+        <tr style="display:none;">
+            <td class="tdal">项目ID：</td>
+            <td class="tdar">
+                <input id="ProjectID" name="ProjectID" type="text" class="easyui-textbox" required="true" />
+            </td>
+        </tr>
+        <tr>
+            <td class="tdal">
+                项目名称：
+            </td>
+            <td class="tdar">
+                <input id="ProjectName" name="ProjectName" type="text" class="easyui-textbox" required="true" />
+            </td>
+            <td class="tdal">
+                项目类型：
+            </td>
+            <td class="tdar">
+                <select id="ProjectType" class="easyui-combobox" name="ProjectType">
+                    <option value="房地产" selected="selected">房地产</option>
+                    <option value="市政">市政</option>
+                    <option value="电力">电力</option>
+                    <option value="化工">化工</option>
+                    <option value="仓储">仓储</option>
+                    <option value="其他">其他</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="tdal">
+                业主名称：
+            </td>
+            <td class="tdar">
+                <input id="OwnerName" name="OwnerName" type="text" class="easyui-textbox" />
+            </td>
+            <td class="tdal">
+                业主类型：
+            </td>
+            <td class="tdar">
+                <select id="OwnerType" class="easyui-combobox" name="OwnerType">
+                    <option value="政府">政府</option>
+                    <option value="国企">国企</option>
+                    <option value="民企" selected="selected">民企</option>
+                    <option value="合资企业">合资企业</option>
+                    <option value="其他">其他</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="tdal">
+                建筑面积：
+            </td>
+            <td class="tdar">
+                <input id="ArchitectureArea" name="ArchitectureArea" type="text" class="easyui-textbox" />
+            </td>
+            <td class="tdal">
+                占地面积：
+            </td>
+            <td class="tdar">
+                <input id="FloorArea" name="FloorArea" type="text" class="easyui-textbox" />
+            </td>
+        </tr>
+        <tr>
+            <td class="tdal">
+                报建日期：
+            </td>
+            <td class="tdar">
+                <input id="ApplicationDate" class="easyui-datebox" data-options="formatter:myformatter,parser:myparser" name="ApplicationDate" />
+            </td>
+            <td class="tdal">
+                竣工日期：
+            </td>
+            <td class="tdar">
+                <input id="CompletionDate" class="easyui-datebox" data-options="formatter:myformatter,parser:myparser" name="CompletionDate" />
+            </td>
+        </tr>
+        <tr>
+            <td class="tdal">
+                工程地址：
+            </td>
+            <td class="tdar">
+                <input id="ProjectAddress" name="ProjectAddress" type="text" class="easyui-textbox" />
+            </td>
+            <td class="tdal">
+                投资金额：
+            </td>
+            <td class="tdar">
+                <input id="InvestmentAmount" name="InvestmentAmount" type="text" class="easyui-textbox" />
+            </td>
+        </tr>
+    </table>
+</form>

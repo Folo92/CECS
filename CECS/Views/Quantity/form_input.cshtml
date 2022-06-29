@@ -1,0 +1,191 @@
+﻿<style>
+    .table_edit {
+        border-collapse: separate;
+        border-spacing: 8px 6px;
+    }
+
+    .tdal {
+        text-align: right;
+    }
+
+    .easyui-textbox {
+        width: 140px;
+        /*height: 28px;
+        border-width:1px;
+        border-color: #808080;
+        border-radius: 5px 5px 5px 5px;
+        box-shadow:none;*/
+    }
+
+    .easyui-searchbox {
+        width: 140px;
+    }
+</style>
+<script>
+    function loadSelectTable(pars) {
+        $('#tab_select').datagrid({
+            url: '/Building/GetBuildingList',
+            title: '',//-----------------
+            iconCls: '', //标题左边的图标
+            width: 1500,
+            height: 750,
+            idField: 'BuildingID',//主键列的列名
+            sortName: 'BuildingID', //排序字段
+            loadMsg: '数据正在加载...',
+            fitColumns: true, //列是否自适应
+            nowrap: false,//是否不自动换行
+            striped: true,//是否奇偶行使用不同背景色
+            singleSelect: true,//是否单行选择-----------------
+            rownumbers: true, //是否显示行号
+            pagination: true,//是否有分页
+            pageSize: 20,//每页最大记录条数
+            pageList: [20, 40, 60],//每页记录条数的列表，pageSize必须在此列表中
+            pageNumber: 1,//当前页，默认的
+            sortOrder: 'desc', //排序类型(本页数据)
+            remoteSort: true, //是否从服务器给数据排序
+            queryParams: pars,//往后台传递参数
+            frozenColumns: [[//冻结的列，不会随横向滚动轴移动
+                { field: 'cbx', checkbox: true },
+            ]],
+            columns: [[
+                { title: '建筑ID', field: 'BuildingID', width: 60 },
+                { title: '建筑名称', field: 'BuildingName', width: 200 },
+                { title: '建筑类型', field: 'BuildingType', width: 80 },
+                { title: '结构体系', field: 'StructureSystem', width: 100 },
+                { title: '建筑高度', field: 'BuildingHeight', width: 60 },
+                { title: '层数', field: 'Floors', width: 50 },
+                { title: '层高', field: 'FloorHeight', width: 50 },
+                { title: '建筑面积', field: 'ArchitectureArea', width: 80 },
+                { title: '结构面积', field: 'StructureArea', width: 80 },
+                { title: '设防烈度', field: 'SeismicIntensity', width: 80 },
+                { title: '场地类别', field: 'SiteClassification', width: 60 },
+                { title: '抗震等级', field: 'SeismicGrade', width: 60 },
+                { title: '基本风压', field: 'ReferenceWindPressure', width: 60 },
+                { title: '规则性', field: 'Regularity', width: 60 },
+                { title: '柱网大小', field: 'ColumnSpan', width: 60 },
+                { title: '项目ID', field: 'ProjectID', width: 60 },
+                { title: '设计人ID', field: 'DesignerID', width: 60 }
+            ]],
+            toolbar: [{
+                id: 'btnSearch',
+                text: '查找',
+                iconCls: 'icon-search',
+                handler: function () {
+                    //searchBuildingInfo();
+                }
+            }],
+        });
+    }
+    //弹出选择列表
+    function myselect(value, name) {
+        //alert($("#" + formID + " #BuildingID").textbox('getValue'));//TEST
+        loadSelectTable();
+        $("#select").dialog("open");
+        $("#select-buttons a:first").attr("onclick", "SelectData(getID()); return false;");//弹出框‘确定’按钮点击事件
+    }
+
+    //弹出选择框：选择链接 事件
+    function SelectData(uid) {
+        $("#" + formID + " #BuildingID").textbox('setValue', uid);
+        //alert($("#" + formID + " BuildingID").textbox('getValue'));
+        //alert(document.getElementById("BuildingID").value);
+        //$("#BuildingID").searchbox({ value: uid });
+        //alert($("#BuildingID").searchbox('options').value);
+        $("#select").dialog('close');
+    }
+    //弹出选择框：获取对应行中主键ID的值
+    function getID() {
+        var rows = $('#tab_select').datagrid('getSelections')
+        return rows[0].BuildingID;
+    }
+</script>
+
+@* 注意：本页面可能被同一页面多次加载，引发id冲突，使用id前应做好处理 *@
+@* 表单内容表格 *@
+<form id="form_list" name="form_list" method="post">
+    <table class="table_edit">
+        @* 修改数据提交时，Ajax.BeginForm()对表单内容进行序列化后，对应的Model对象无ID值，保存会出错。
+            故此处表单添加主键ID，用display:none隐藏 *@
+        <tr style="display:none;">
+            <td class="tdal">工程量ID：</td>
+            <td class="tdar">
+                <input id="QuantityID" name="QuantityID" type="text" class="easyui-textbox" required="true" />
+            </td>
+        </tr>
+        <tr>
+            <td class="tdal">
+                建筑ID：
+            </td>
+            <td class="tdar" colspan="3">
+                <input id="BuildingID" name="BuildingID" type="text" class="easyui-searchbox" required="true"
+                       data-options="searcher:myselect,prompt:'请输入建筑ID'" />
+                @*<input id="BuildingID" name="BuildingID" type="text" class="easyui-searchbox" required="true"
+                           data-options="searcher:myselect,prompt:'Please Input Value',menu:'#mm'" />
+                    <div id="mm" style="width:50px">
+                        <div data-options="name:'all',iconCls:'icon-ok'">All</div>
+                        <div data-options="name:'name'">Name</div>
+                    </div>*@
+            </td>
+        </tr>
+        <tr>
+            <td class="tdal">
+                钢筋量：
+            </td>
+            <td class="tdar">
+                <input id="TotalSteel" name="TotalSteel" type="text" class="easyui-textbox" />
+            </td>
+            <td class="tdal">
+                砼量：
+            </td>
+            <td class="tdar">
+                <input id="TotalConcrete" name="TotalConcrete" type="text" class="easyui-textbox" />
+            </td>
+            <td class="tdal">
+                模板量：
+            </td>
+            <td class="tdar">
+                <input id="TotalShuttering" name="TotalShuttering" type="text" class="easyui-textbox" />
+            </td>
+        </tr>
+        <tr>
+            <td class="tdal">
+                单方含钢量：
+            </td>
+            <td class="tdar">
+                <input id="UnitSteel" name="UnitSteel" type="text" class="easyui-textbox" />
+            </td>
+            <td class="tdal">
+                单方砼量：
+            </td>
+            <td class="tdar">
+                <input id="UnitConcrete" name="UnitConcrete" type="text" class="easyui-textbox" />
+            </td>
+            <td class="tdal">
+                单方模板量：
+            </td>
+            <td class="tdar">
+                <input id="UnitShuttering" name="UnitShuttering" type="text" class="easyui-textbox" />
+            </td>
+        </tr>
+        <tr>
+            <td class="tdal">
+                钢筋单价：
+            </td>
+            <td class="tdar">
+                <input id="SteelPrice" name="SteelPrice" type="text" class="easyui-textbox" />
+            </td>
+            <td class="tdal">
+                砼单价：
+            </td>
+            <td class="tdar">
+                <input id="ConcretePrice" name="ConcretePrice" type="text" class="easyui-textbox" />
+            </td>
+            <td class="tdal">
+                模板单价：
+            </td>
+            <td class="tdar">
+                <input id="ShutteringPrice" name="ShutteringPrice" type="text" class="easyui-textbox" />
+            </td>
+        </tr>
+    </table>
+</form>

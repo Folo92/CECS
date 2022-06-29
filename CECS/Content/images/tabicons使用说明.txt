@@ -1,0 +1,13 @@
+
+打开..\css\default.css文件，添加icon类名并定义精灵图（tabicons）中的位置，例如：
+
+.icon-set
+{
+    background-position: -380px -200px;
+}
+
+位置计算方法：
+
+假设图标从左往右、从上往下数所在的列号为column，行号为row，则
+
+background-position: -20*(column-1)px  -20*(row-1)px
