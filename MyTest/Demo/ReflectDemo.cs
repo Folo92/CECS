@@ -7,10 +7,10 @@ using System.Reflection;
 
 namespace MyTest.Demo
 {
-    internal class ReflectDemo
+    public static class ReflectDemo
     {
         #region 测试：使用反射从程序集获得类型
-        internal void ShowClassInfo()
+        public static void ShowClassInfo()
         {
             Assembly asm = Assembly.LoadFrom(@"MyTest");  //加载指定的程序集
             Type[] alltype = asm.GetTypes();  //获取程序集中的所有类型列表
@@ -24,14 +24,13 @@ namespace MyTest.Demo
         #endregion
 
         #region 测试：使用反射获取方法的相关信息
-        internal void ShowMethodInfo(Type t)
+        public static void ShowMethodInfo(Type t)
         {
             //Type t = typeof(temp);
             Console.WriteLine("=== Analyzing methods in " + t.Name + " ===");
 
             //MethodInfo[] mi = t.GetMethods();  //MethodInfo对象在System.Reflection命名空间下。
             MethodInfo[] mi = t.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);  //不获取继承方法，为实例方法，为公开的
-
             foreach (MethodInfo m in mi) //遍历mi对象数组
             {
                 Console.Write(m.ReturnType.Name); //返回方法的返回类型
@@ -52,7 +51,7 @@ namespace MyTest.Demo
             Console.WriteLine("=== Finished ===\n"); //换行
             //Console.ReadKey();
         }
-        internal void ShowMethodInfo()
+        public static void ShowMethodInfo()
         {
             Type t = typeof(SeqList<string>);
             //Type t = typeof(MyClass);   //获取描述MyClass类型的Type对象，MyClass可以换成其他类
@@ -95,7 +94,7 @@ namespace MyTest.Demo
         #region 测试：使用反射调用运行时动态创建的对象的方法
         //先获取一个构造函数列表，然后调用列表中的某个构造函数，创建一个该类型的实例。
         //通过这种机制，可以在运行时实例化任意类型的对象，而不必在声明语句中指定类型。
-        internal void InvokeCons()
+        public static void InvokeCons()
         {
             Type t = typeof(MyClass);
             int val;
@@ -137,7 +136,7 @@ namespace MyTest.Demo
 
         #region 测试：使用反射调用显式创建的对象的方法
         //先通过反射获取到要调用的方法，然后使用Invoke()方法，调用获取到的指定方法
-        internal void InvokeMeth()
+        public static void InvokeMeth()
         {
             Type t = typeof(MyClass);
             MyClass reflectOb = new MyClass(10, 20);

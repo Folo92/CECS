@@ -34,6 +34,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DALFactory", "DALFactory\DA
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyTest", "MyTest\MyTest.csproj", "{570DF436-F6F2-413D-B44B-FC7B5F263028}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3C5B0F13-E109-45D3-BFE2-6607316E2CC4} = {3C5B0F13-E109-45D3-BFE2-6607316E2CC4}
+		{7EFEB645-1C38-4366-B6C0-134BA55AF3E8} = {7EFEB645-1C38-4366-B6C0-134BA55AF3E8}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

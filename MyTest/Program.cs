@@ -20,7 +20,8 @@ namespace MyTest
             //TestReflect();
             //TestThread();
             //TestByTimes();
-            TestLinq();
+            //TestLinq();
+            DataGenerator.TestGenerator();
         }
 
         #region 测试：代码运行时间
@@ -47,19 +48,17 @@ namespace MyTest
         #region 测试：Linq
         static void TestLinq()
         {
-            LinqDemo linqDemo = new LinqDemo();
-            linqDemo.ShowLinqResult();
+            LinqDemo.ShowLinqResult();
         }
         #endregion
 
         #region 测试：反射
         static void TestReflect()
         {
-            ReflectDemo reflectDemo = new ReflectDemo();
-            //reflectDemo.ShowMethodInfo();
-            //reflectDemo.InvokeMeth();
-            reflectDemo.InvokeCons();
-            //reflectDemo.ShowClassInfo();
+            ReflectDemo.ShowMethodInfo();
+            //ReflectDemo.InvokeMeth();
+            //ReflectDemo.InvokeCons();
+            //ReflectDemo.ShowClassInfo();
         }
         #endregion
 

@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace MyTest.Demo
 {
-    internal class LinqDemo
+    public static class LinqDemo
     {
         #region 测试：Linq
-        internal void ShowLinqResult()
+        public static void ShowLinqResult()
         {
             var query = Linq4();
 
