@@ -15,21 +15,13 @@ namespace MyTest.Demo
     {
         public static void TestGenerator()
         {
-            //TestEntity data = GenerateData<TestEntity>();
+            TestEntity data = GenerateData<TestEntity>();
             //Console.WriteLine(SerializeHelper.SerializeToString(data));
-
-            //PropertyInfo[] props = data.GetType().GetProperties();
-            //foreach (PropertyInfo prop in props)
-            //{
-            //    Console.Write(prop.Name + ": "); //返回属性的名称
-            //    Console.WriteLine(prop.GetValue(data));
-            //}
         }
         public static T GenerateData<T>() where T : class
         {
             Type type = typeof(T);
             var instance = Activator.CreateInstance(type);
-            //type.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(x => x.CanRead).ToList().ForEach(x => { x.SetValue(instance, x.ToString()); });
             PropertyInfo[] props = type.GetProperties();
             foreach (PropertyInfo prop in props)
             {
@@ -40,26 +32,35 @@ namespace MyTest.Demo
 
         private static void SetRandomValue(object instance, PropertyInfo prop)
         {
-            Console.Write(prop.Name + ": "); //返回属性的名称
+            Console.Write(prop.Name + ": "); //输出属性名称
             if (instance == null) return;
             Type propType = prop.PropertyType;
 
-            //根据数据类型生成随机数
-            if (propType == typeof(int) || propType == typeof(int?))
-                prop.SetValue(instance, RandomInt());
-
-            //else if (propType == typeof(uint) || propType == typeof(uint?))
+            //if (propType == typeof(int) || propType == typeof(int?))
             //{
             //    Console.WriteLine(typeof(DataGenerator).GetMethod("SetRandomValue").ToString());
             //    MethodInfo mi = instance.GetType().GetMethod("RandomInt").MakeGenericMethod(new Type[] { propType });
             //    prop.SetValue(instance, mi.Invoke(null, new object[] { 0, 100 }));
             //}
 
+            //根据数据类型生成随机数
+            if (propType == typeof(int) || propType == typeof(int?))
+                prop.SetValue(instance, RandomInt());
+
+            else if (propType == typeof(uint) || propType == typeof(uint?))
+                prop.SetValue(instance, RandomUInt());
+
             else if (propType == typeof(long) || propType == typeof(long?))
                 prop.SetValue(instance, RandomLong());
 
+            else if (propType == typeof(ulong) || propType == typeof(ulong?))
+                prop.SetValue(instance, RandomULong());
+
             else if (propType == typeof(short) || propType == typeof(short?))
                 prop.SetValue(instance, RandomShort());
+
+            else if (propType == typeof(ushort) || propType == typeof(ushort?))
+                prop.SetValue(instance, RandomUShort());
 
             else if (propType == typeof(decimal) || propType == typeof(decimal?))
                 prop.SetValue(instance, RandomDecimal());
@@ -87,7 +88,7 @@ namespace MyTest.Demo
 
             else if (propType.IsClass)
             {
-                Console.Write("{\n");
+                Console.Write("{\n");//输出
                 var propInst = Activator.CreateInstance(propType);
                 PropertyInfo[] myProps = propType.GetProperties();
                 foreach (PropertyInfo p in myProps)
@@ -95,9 +96,10 @@ namespace MyTest.Demo
                     SetRandomValue(propInst, p);
                 }
                 prop.SetValue(instance, propInst);//给实体属性赋值
-                Console.Write("}");
+                Console.Write("}");//输出
             }
-            Console.WriteLine(prop.GetValue(instance));
+
+            Console.WriteLine(propType.IsClass ? "" : prop.GetValue(instance));//输出
         }
 
         /// <summary>
@@ -116,6 +118,21 @@ namespace MyTest.Demo
             return RandomInt(0, 100);
         }
         /// <summary>
+        /// 生成 UInt32 (uint) 类型的随机数据
+        /// </summary>
+        public static uint RandomUInt(uint minValue, uint maxValue)
+        {
+            return (uint)Random.Shared.Next((int)minValue, (int)maxValue);
+        }
+        public static uint RandomUInt(uint maxValue)
+        {
+            return RandomUInt(0, maxValue);
+        }
+        public static uint RandomUInt()
+        {
+            return RandomUInt(0, 100);
+        }
+        /// <summary>
         /// 生成 Int64 (long) 类型的随机数据
         /// </summary>
         public static long RandomLong(long minValue, long maxValue)
@@ -131,6 +148,21 @@ namespace MyTest.Demo
             return RandomLong(0, 100);
         }
         /// <summary>
+        /// 生成 UInt64 (ulong) 类型的随机数据
+        /// </summary>
+        public static ulong RandomULong(ulong minValue, ulong maxValue)
+        {
+            return (ulong)Random.Shared.NextInt64((long)minValue, (long)maxValue);
+        }
+        public static ulong RandomULong(ulong maxValue)
+        {
+            return RandomULong(0, maxValue);
+        }
+        public static ulong RandomULong()
+        {
+            return RandomULong(0, 100);
+        }
+        /// <summary>
         /// 生成 Int16 (short) 类型的随机数据
         /// </summary>
         public static short RandomShort(short minValue, short maxValue)
@@ -144,6 +176,21 @@ namespace MyTest.Demo
         public static short RandomShort()
         {
             return RandomShort(0, 10);
+        }
+        /// <summary>
+        /// 生成 UInt16 (ushort) 类型的随机数据
+        /// </summary>
+        public static ushort RandomUShort(ushort minValue, ushort maxValue)
+        {
+            return (ushort)Random.Shared.Next(minValue, maxValue);
+        }
+        public static ushort RandomUShort(ushort maxValue)
+        {
+            return RandomUShort(0, maxValue);
+        }
+        public static ushort RandomUShort()
+        {
+            return RandomUShort(0, 10);
         }
         /// <summary>
         /// 生成 decimal 类型的随机数据
