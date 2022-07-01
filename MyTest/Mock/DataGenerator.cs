@@ -1,24 +1,54 @@
-﻿using Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization.Json;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
-namespace MyTest.Demo
+namespace MyTest.Mock
 {
     /// <summary>
     /// 实体数据生成器
     /// </summary>
     public static class DataGenerator
     {
-        public static void TestGenerator()
+        public static void Test()
         {
-            TestEntity data = GenerateData<TestEntity>();
-            //Console.WriteLine(SerializeHelper.SerializeToString(data));
+            Console.WriteLine("-------- Start test of DataGenerator: --------");
+            TestEntity data = Generate<TestEntity>();
+            Console.WriteLine(ConvertEntityToString(data));
         }
-        public static T GenerateData<T>() where T : class
+
+        /// <summary>
+        /// 将实体类通过反射组装成字符串
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity">实体类</param>
+        /// <param name="prefix">输出格式前缀</param>
+        /// <returns>组装的字符串</returns>
+        public static string ConvertEntityToString<T>(T entity, string prefix = "  ")
+        {
+            StringBuilder sb = new StringBuilder();
+            PropertyInfo[] props = entity.GetType().GetProperties();//不能用typeof(T)，否则在递归调用时获得的Type是空的
+            sb.Append("{\n");
+            foreach (PropertyInfo prop in props)
+            {
+                if (prop.PropertyType.IsClass && prop.PropertyType != typeof(string))
+                {
+                    sb.Append(prefix + prop.Name + ": ");
+                    sb.Append(ConvertEntityToString(prop.GetValue(entity), prefix + "  "));
+                }
+                else
+                {
+                    sb.Append(prefix + prop.Name + ": " + prop.GetValue(entity) + "\n");
+                }
+            }
+            sb.Append(prefix[2..] + "}\n");
+            return sb.ToString();
+        }
+        public static T Generate<T>() where T : class
         {
             Type type = typeof(T);
             var instance = Activator.CreateInstance(type);
@@ -29,79 +59,121 @@ namespace MyTest.Demo
             }
             return (T)instance;
         }
-
+        /// <summary>
+        /// //根据属性名语义生成对应随机字符串
+        /// </summary>
+        public static string GetRandomStringByPropName(string propName)
+        {
+            string res = "";
+            if (propName.Contains("Name", StringComparison.OrdinalIgnoreCase)) res = RandomString("Name");
+            else if (propName.Contains("author", StringComparison.OrdinalIgnoreCase)) res = RandomString("Author");
+            else if (propName.Contains("address", StringComparison.OrdinalIgnoreCase)) res = RandomString("Address");
+            else if (propName.Contains("town", StringComparison.OrdinalIgnoreCase)) res = RandomString("Town");
+            else if (propName.Contains("area", StringComparison.OrdinalIgnoreCase)) res = RandomString("Area");
+            else if (propName.Contains("city", StringComparison.OrdinalIgnoreCase)) res = RandomString("City");
+            else if (propName.Contains("province", StringComparison.OrdinalIgnoreCase)) res = RandomString("Province");
+            else if (propName.Contains("ip", StringComparison.OrdinalIgnoreCase)) res = GetRandomIP();
+            else if (propName.Contains("url", StringComparison.OrdinalIgnoreCase)) res = GetRandomUrl();
+            else if (propName.Contains("mobile", StringComparison.OrdinalIgnoreCase)) res = GetRandomMobileNumber();
+            else if (propName.Contains("email", StringComparison.OrdinalIgnoreCase)) res = GetRandomEmail();
+            else if (propName.Contains("sex", StringComparison.OrdinalIgnoreCase)) res = RandomString(new[] { "男", "女" });
+            else if (propName.Contains("id", StringComparison.OrdinalIgnoreCase)) res = RandomInt(100000, 100000000).ToString();
+            else if (propName.Contains("age", StringComparison.OrdinalIgnoreCase)) res = RandomInt(12, 80).ToString();
+            else if (propName.Contains("postcode", StringComparison.OrdinalIgnoreCase)) res = RandomInt(1000, 10000).ToString() + "00";
+            return res;
+        }
         private static void SetRandomValue(object instance, PropertyInfo prop)
         {
-            Console.Write(prop.Name + ": "); //输出属性名称
             if (instance == null) return;
             Type propType = prop.PropertyType;
 
-            //if (propType == typeof(int) || propType == typeof(int?))
-            //{
-            //    Console.WriteLine(typeof(DataGenerator).GetMethod("SetRandomValue").ToString());
-            //    MethodInfo mi = instance.GetType().GetMethod("RandomInt").MakeGenericMethod(new Type[] { propType });
-            //    prop.SetValue(instance, mi.Invoke(null, new object[] { 0, 100 }));
-            //}
+            //根据属性名语义生成对应随机字符串
+            string res = "";
+            if (!propType.IsClass || propType == typeof(string))
+                res = GetRandomStringByPropName(prop.Name);
 
             //根据数据类型生成随机数
-            if (propType == typeof(int) || propType == typeof(int?))
-                prop.SetValue(instance, RandomInt());
-
+            if (propType == typeof(string))
+                prop.SetValue(instance, res != "" ? res : RandomString(6, 10));
+            else if (propType == typeof(int) || propType == typeof(int?))
+                prop.SetValue(instance, res != "" ? Convert.ToInt32(res) : RandomInt());
             else if (propType == typeof(uint) || propType == typeof(uint?))
-                prop.SetValue(instance, RandomUInt());
-
+                prop.SetValue(instance, res != "" ? Convert.ToUInt32(res) : RandomUInt());
             else if (propType == typeof(long) || propType == typeof(long?))
-                prop.SetValue(instance, RandomLong());
-
+                prop.SetValue(instance, res != "" ? Convert.ToInt64(res) : RandomLong());
             else if (propType == typeof(ulong) || propType == typeof(ulong?))
-                prop.SetValue(instance, RandomULong());
-
+                prop.SetValue(instance, res != "" ? Convert.ToUInt64(res) : RandomULong());
             else if (propType == typeof(short) || propType == typeof(short?))
-                prop.SetValue(instance, RandomShort());
-
+                prop.SetValue(instance, res != "" ? Convert.ToInt16(res) : RandomShort());
             else if (propType == typeof(ushort) || propType == typeof(ushort?))
-                prop.SetValue(instance, RandomUShort());
-
+                prop.SetValue(instance, res != "" ? Convert.ToUInt16(res) : RandomUShort());
             else if (propType == typeof(decimal) || propType == typeof(decimal?))
-                prop.SetValue(instance, RandomDecimal());
-
+                prop.SetValue(instance, res != "" ? Convert.ToDecimal(res) : RandomDecimal());
             else if (propType == typeof(double) || propType == typeof(double?))
-                prop.SetValue(instance, RandomDouble());
-
+                prop.SetValue(instance, res != "" ? Convert.ToDouble(res) : RandomDouble());
             else if (propType == typeof(float) || propType == typeof(float?))
-                prop.SetValue(instance, RandomFloat());
-
+                prop.SetValue(instance, res != "" ? Convert.ToSingle(res) : RandomFloat());
             else if (propType == typeof(byte) || propType == typeof(byte?))
-                prop.SetValue(instance, RandomByte());
-
+                prop.SetValue(instance, res != "" ? Convert.ToByte(res) : RandomByte());
             else if (propType == typeof(sbyte) || propType == typeof(sbyte?))
-                prop.SetValue(instance, RandomSByte(1));
-
+                prop.SetValue(instance, res != "" ? Convert.ToSByte(res) : RandomSByte(1));
             else if (propType == typeof(bool))
-                prop.SetValue(instance, RandomBoolean());
-
-            else if (propType == typeof(string))
-                prop.SetValue(instance, RandomString("Name"));
-
+                prop.SetValue(instance, res != "" ? Convert.ToBoolean(res) : RandomBoolean());
             else if (propType == typeof(DateTime) || propType == typeof(DateTime?))
-                prop.SetValue(instance, RandomDateTime());
-
+                prop.SetValue(instance, res != "" ? Convert.ToDateTime(res) : RandomDateTime());
             else if (propType.IsClass)
             {
-                Console.Write("{\n");//输出
                 var propInst = Activator.CreateInstance(propType);
                 PropertyInfo[] myProps = propType.GetProperties();
-                foreach (PropertyInfo p in myProps)
-                {
-                    SetRandomValue(propInst, p);
-                }
+                foreach (PropertyInfo p in myProps) SetRandomValue(propInst, p);//递归
                 prop.SetValue(instance, propInst);//给实体属性赋值
-                Console.Write("}");//输出
             }
-
-            Console.WriteLine(propType.IsClass ? "" : prop.GetValue(instance));//输出
         }
-
+        /// <summary>
+        /// 生成随机字符串
+        /// </summary>
+        /// <param name="minLen">生成字符串的最小长度</param>
+        /// <param name="maxLen">生成字符串的最大长度</param>
+        /// <returns></returns>
+        public static string RandomString(int minLen, int maxLen)
+        {
+            int len = Random.Shared.Next(minLen, maxLen + 1);//长度范围包含最大值
+            string str = "";
+            for (int i = 0; i < len; i++)
+            {
+                //str += Convert.ToChar((byte)Random.Shared.Next(32, 127));
+                if (Random.Shared.Next(0, 2) == 0) str += Convert.ToChar((byte)Random.Shared.Next(65, 91));
+                else str += Convert.ToChar((byte)Random.Shared.Next(97, 123));
+            }
+            return str;
+        }
+        public static string RandomString(int maxLen)
+        {
+            return RandomString(1, maxLen);
+        }
+        public static string RandomString()
+        {
+            return RandomString(1, 9);
+        }
+        public static string RandomString(string[] arr)
+        {
+            return arr[Random.Shared.Next(0, arr.Length)];
+        }
+        public static string RandomString(string flag)
+        {
+            return flag switch
+            {
+                "Name" => NameGenerator.GetRandomEnglishName(),
+                "Author" => NameGenerator.GetRandomChineseName(),
+                "Address" => AddressGenerator.GetRandomAddress(5),
+                "Town" => AddressGenerator.GetRandomAddress(4),
+                "Area" => AddressGenerator.GetRandomAddress(3),
+                "City" => AddressGenerator.GetRandomAddress(2),
+                "Province" => AddressGenerator.GetRandomAddress(1),
+                "IP" => AddressGenerator.GetRandomAddress(),
+                _ => RandomString(),
+            };
+        }
         /// <summary>
         /// 生成 Int32 (int) 类型的随机数据
         /// </summary>
@@ -287,44 +359,6 @@ namespace MyTest.Demo
             return Random.Shared.Next(0, 2) == 1 ? true : false;
         }
         /// <summary>
-        /// 生成随机字符串
-        /// </summary>
-        /// <param name="minLen">生成字符串的最小长度</param>
-        /// <param name="maxLen">生成字符串的最大长度</param>
-        /// <returns></returns>
-        public static string RandomString(int minLen, int maxLen)
-        {
-            int len = Random.Shared.Next(minLen, maxLen + 1);//长度范围包含最大值
-            string str = "";
-            for (int i = 0; i < len; i++)
-            {
-                //str += Convert.ToChar((byte)Random.Shared.Next(32, 127));
-                if (Random.Shared.Next(0, 2) == 0) str += Convert.ToChar((byte)Random.Shared.Next(65, 91));
-                else str += Convert.ToChar((byte)Random.Shared.Next(97, 123));
-            }
-            return str;
-        }
-        public static string RandomString(int maxLen)
-        {
-            return RandomString(1, maxLen);
-        }
-        public static string RandomString(string flag)
-        {
-            return flag switch
-            {
-                "Name" => NameGenerator.GenerateSurname(),
-                _ => RandomString(),
-            };
-        }
-        public static string RandomString(string[] arr)
-        {
-            return arr[Random.Shared.Next(0, arr.Length)];
-        }
-        public static string RandomString()
-        {
-            return RandomString(1, 9);
-        }
-        /// <summary>
         /// 生成随机时间
         /// </summary>
         public static DateTime RandomDateTime(int maxYearsAgo, int maxDaysAgo)
@@ -345,6 +379,38 @@ namespace MyTest.Demo
             return RandomDateTime(10, 12);
         }
 
+        public static string GetRandomIP()
+        {
+            string ip = "";
+            ip += Random.Shared.Next(0, 256).ToString() + ".";
+            ip += Random.Shared.Next(0, 256).ToString() + ".";
+            ip += Random.Shared.Next(0, 256).ToString() + ".";
+            ip += Random.Shared.Next(0, 256).ToString();
+            return ip;
+        }
+        public static string GetRandomUrl()
+        {
+            string url = Random.Shared.Next(0, 2) == 0 ? "http://www." : "https://www.";
+            for (int i = 0; i < Random.Shared.Next(3, 9); i++) url += Convert.ToChar((byte)Random.Shared.Next(97, 123));
+            string[] suffix = { ".com", ".com", ".com", ".com", ".com", ".cn", ".cn", ".net", ".net", ".org", ".gov", ".io" };
+            url += suffix[Random.Shared.Next(12)];
+            //url += "/";
+            //for (int i = 0; i < Random.Shared.Next(3, 9); i++) url += Convert.ToChar((byte)Random.Shared.Next(97, 123));
+            return url;
+        }
+        public static string GetRandomMobileNumber()
+        {
+            string[] arr = { "3", "3", "3", "3", "4", "5", "5", "5", "6", "7", "7", "7", "8", "8", "8", "9" };
+            return "1" + arr[Random.Shared.Next(16)] + string.Format("{0:000000000}", Random.Shared.Next(0, 1000000000));
+        }
+        public static string GetRandomEmail()
+        {
+            string email = "";
+            for (int i = 0; i < Random.Shared.Next(5, 9); i++) email += Convert.ToChar((byte)Random.Shared.Next(97, 123));
+            string[] suffix = { "@qq.com", "@qq.com", "@163.com", "@163.com", "@sina.com", "@sohu.com", "@tom.com", "@189.cn" };
+            email += suffix[Random.Shared.Next(8)];
+            return email;
+        }
         /// <summary>
         /// 利用C#反射机制，将type作为泛型T传入方法
         /// </summary>

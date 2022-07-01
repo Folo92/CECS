@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyTest
+namespace MyTest.Mock
 {
     public partial class TestEntity
     {
@@ -20,7 +20,7 @@ namespace MyTest
         public long MobilePhone { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime? RegTime { get; set; }
-        public TestEntity2 House { get; set; }
+        public TestEntity2 Blog { get; set; }
         public Model.Href HrefLink { get; set; }
     }
 }

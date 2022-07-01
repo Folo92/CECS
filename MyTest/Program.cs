@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 using MyTest.Demo;
+using MyTest.Mock;
 
 namespace MyTest
 {
@@ -21,7 +22,10 @@ namespace MyTest
             //TestThread();
             //TestByTimes();
             //TestLinq();
-            DataGenerator.TestGenerator();
+            DataGenerator.Test();
+            NameGenerator.Test();
+            ProverbGenerator.Test();
+            AddressGenerator.Test();
         }
 
         #region 测试：代码运行时间
